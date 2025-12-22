@@ -42,13 +42,11 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop('password_confirm')
         password = validated_data.pop('password')
-        # Use username as email if not provided, but here email is USERNAME_FIELD
         validated_data['username'] = validated_data['email']
         user = User.objects.create_user(**validated_data)
         user.set_password(password)
         user.save()
         
-        # Create an empty profile
         UserProfile.objects.create(user=user)
         
         return user

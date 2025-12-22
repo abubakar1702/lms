@@ -42,14 +42,12 @@ class ProfileView(generics.RetrieveUpdateAPIView):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
         
-        # Extract profile data if present
         profile_data = request.data.pop('profile', None)
         
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         
-        # Update UserProfile if profile data was provided
         if profile_data:
             profile_instance = instance.profile
             for attr, value in profile_data.items():
@@ -67,7 +65,6 @@ class PasswordResetRequestView(APIView):
         email = serializer.validated_data['email']
         user = User.objects.get(email=email)
         
-        # Create token
         token = str(uuid.uuid4())
         expires_at = timezone.now() + timedelta(hours=24)
         PasswordResetToken.objects.create(
@@ -76,11 +73,9 @@ class PasswordResetRequestView(APIView):
             expires_at=expires_at
         )
         
-        # In a real app, send email here
-        # For now, just return the token in response for testing
         return Response({
             "message": "Password reset link has been sent to your email.",
-            "token": token # Remove this in production
+            "token": token 
         }, status=status.HTTP_200_OK)
 
 class PasswordResetConfirmView(APIView):
