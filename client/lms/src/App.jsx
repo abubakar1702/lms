@@ -1,0 +1,51 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import LogIn from './components/auth/LogIn';
+import Register from './components/auth/Register';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import MainLayout from './pages/MainLayout';
+import Dashboard from './pages/Dashboard';
+import Courses from './pages/Courses';
+import CourseDetail from './pages/CourseDetail';
+import './App.css';
+
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/login" element={<LogIn />} />
+          <Route path="/register" element={<Register />} />
+
+          {/* Protected Routes inside MainLayout */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <MainLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Navigate to="/dashboard" />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="profile" element={<div>Profile Page (Coming Soon)</div>} />
+            <Route path="courses" element={<Courses />} />
+            <Route path="courses/:slug" element={<CourseDetail />} />
+            <Route path="my-enrollments" element={<div>My Learning (Coming Soon)</div>} />
+            <Route path="instructor/courses" element={<div>Instructor Courses (Coming Soon)</div>} />
+            <Route path="instructor/create-course" element={<div>Create Course (Coming Soon)</div>} />
+            <Route path="admin/users" element={<div>Manage Users (Coming Soon)</div>} />
+            <Route path="admin/reports" element={<div>Reports (Coming Soon)</div>} />
+          </Route>
+
+          {/* Fallback routes */}
+          <Route path="*" element={<Navigate to="/login" />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
+  );
+}
+
+export default App;
