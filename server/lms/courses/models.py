@@ -22,6 +22,12 @@ class Category(models.Model):
         return self.name
 
 class Course(models.Model):
+    LEVEL_CHOICES = [
+        ('beginner', 'Beginner'),
+        ('intermediate', 'Intermediate'),
+        ('advanced', 'Advanced'),
+    ]
+
     instructor = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
         on_delete=models.CASCADE, 
@@ -39,6 +45,9 @@ class Course(models.Model):
     thumbnail = models.ImageField(upload_to='course_thumbnails/', blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     duration = models.CharField(max_length=50, blank=True, null=True, help_text="e.g. 10 hours")
+    level = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='beginner')
+    requirements = models.TextField(blank=True, null=True)
+    what_will_you_learn = models.TextField(blank=True, null=True)
     is_published = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -53,3 +62,20 @@ class Course(models.Model):
 
     def __str__(self):
         return self.title
+
+class Lesson(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lessons')
+    title = models.CharField(max_length=255)
+    content = models.TextField(blank=True, null=True)
+    video_url = models.URLField(blank=True, null=True)
+    duration = models.CharField(max_length=50, blank=True, null=True)
+    order = models.PositiveIntegerField(default=0)
+    is_preview = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return f"{self.course.title} - {self.title}"
