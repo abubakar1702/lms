@@ -1,11 +1,17 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { User, LogOut, Settings, Bell } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const UserMenu = () => {
     const { user, logout } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        await logout();
+        navigate('/login');
+    };
 
     return (
         <div className="flex items-center gap-6">
@@ -37,7 +43,7 @@ const UserMenu = () => {
                         </Link>
                         <div className="h-px bg-white/10 my-2 mx-1"></div>
                         <button
-                            onClick={logout}
+                            onClick={handleLogout}
                             className="nav-link w-full !py-2.5 !px-3 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10"
                         >
                             <LogOut size={18} />

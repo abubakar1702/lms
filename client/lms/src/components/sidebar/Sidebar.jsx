@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import {
     LayoutDashboard,
     BookOpen,
@@ -15,6 +15,12 @@ import { useAuth } from '../../context/AuthContext';
 
 const Sidebar = () => {
     const { user, logout } = useAuth();
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        await logout();
+        navigate('/login');
+    };
 
     const getNavItems = () => {
         const common = [
@@ -28,13 +34,15 @@ const Sidebar = () => {
         ];
 
         const instructorItems = [
+            // Instructors are teachers, they only manage the courses they teach
             { path: '/instructor/courses', label: 'My Courses', icon: BookOpen },
-            { path: '/instructor/create-course', label: 'Create Course', icon: PlusSquare },
         ];
 
         const adminItems = [
             { path: '/admin/users', label: 'Manage Users', icon: Users },
             { path: '/admin/courses', label: 'All Courses', icon: Library },
+            // Only admins can see the Create Course link
+            { path: '/instructor/create-course', label: 'Create Course', icon: PlusSquare },
             { path: '/admin/reports', label: 'Reports', icon: BarChart3 },
         ];
 
@@ -77,7 +85,7 @@ const Sidebar = () => {
                 </div>
 
                 <button
-                    onClick={logout}
+                    onClick={handleLogout}
                     className="nav-link w-full text-left"
                 >
                     <LogOut size={20} />

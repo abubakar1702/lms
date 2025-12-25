@@ -2,18 +2,27 @@ from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import timedelta
-import uuid
+import random
+import string
 
-from .models import PasswordResetToken, UserProfile
+from .models import PasswordResetOTP, UserProfile
 from .serializers import (
     UserSerializer, RegisterSerializer, 
-    PasswordResetSerializer, PasswordResetConfirmSerializer
+    PasswordResetRequestSerializer, PasswordResetVerifyOTPSerializer,
+    PasswordResetConfirmSerializer, CustomTokenObtainPairSerializer
 )
 
 User = get_user_model()
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    """Custom JWT view to use email for authentication"""
+    serializer_class = CustomTokenObtainPairSerializer
+
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -42,65 +51,108 @@ class ProfileView(generics.RetrieveUpdateAPIView):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
         
-        profile_data = request.data.pop('profile', None)
+        # Create a copy of request.data to avoid mutating the original
+        data = request.data.copy()
+        profile_data = data.pop('profile', None)
         
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        # Update user fields
+        serializer = self.get_serializer(instance, data=data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         
+        # Update profile if provided
         if profile_data:
-            profile_instance = instance.profile
-            for attr, value in profile_data.items():
-                setattr(profile_instance, attr, value)
-            profile_instance.save()
+            from .serializers import UserProfileSerializer
+            # Ensure profile exists
+            profile_instance, created = UserProfile.objects.get_or_create(user=instance)
+            profile_serializer = UserProfileSerializer(profile_instance, data=profile_data, partial=True)
+            profile_serializer.is_valid(raise_exception=True)
+            profile_serializer.save()
+        
+        # Refresh and return updated data
+        instance.refresh_from_db()
+        return Response(self.get_serializer(instance).data)
 
-        return Response(serializer.data)
+def generate_otp():
+    """Generate a 6-digit OTP"""
+    return ''.join(random.choices(string.digits, k=6))
+
 
 class PasswordResetRequestView(APIView):
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request):
-        serializer = PasswordResetSerializer(data=request.data)
+        serializer = PasswordResetRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         email = serializer.validated_data['email']
         user = User.objects.get(email=email)
         
-        token = str(uuid.uuid4())
-        expires_at = timezone.now() + timedelta(hours=24)
-        PasswordResetToken.objects.create(
+        # Invalidate any existing unused OTPs for this user
+        PasswordResetOTP.objects.filter(
             user=user,
-            token=token,
+            is_used=False
+        ).update(is_used=True)
+        
+        # Generate new 6-digit OTP
+        otp = generate_otp()
+        expires_at = timezone.now() + timedelta(minutes=10)  # OTP expires in 10 minutes
+        
+        PasswordResetOTP.objects.create(
+            user=user,
+            otp=otp,
             expires_at=expires_at
         )
         
+        # In production, send OTP via email/SMS
+        # For now, we'll return it in the response (remove this in production!)
+        print(f"OTP for {email}: {otp}")  # Remove in production
+        
         return Response({
-            "message": "Password reset link has been sent to your email.",
-            "token": token 
+            "message": "OTP has been sent to your email.",
+            "otp": otp  # Remove this in production - only for development
         }, status=status.HTTP_200_OK)
+
+
+class PasswordResetVerifyOTPView(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request):
+        serializer = PasswordResetVerifyOTPSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        return Response({
+            "message": "OTP verified successfully. You can now reset your password.",
+            "verified": True
+        }, status=status.HTTP_200_OK)
+
 
 class PasswordResetConfirmView(APIView):
     permission_classes = (permissions.AllowAny,)
 
-    def post(self, request, token):
-        try:
-            reset_token = PasswordResetToken.objects.get(token=token)
-        except PasswordResetToken.DoesNotExist:
-            return Response({"error": "Invalid token."}, status=status.HTTP_400_BAD_REQUEST)
-        
-        if not reset_token.is_valid():
-            return Response({"error": "Token has expired or already been used."}, status=status.HTTP_400_BAD_REQUEST)
-        
+    def post(self, request):
         serializer = PasswordResetConfirmSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
-        user = reset_token.user
-        user.set_password(serializer.validated_data['new_password'])
+        otp_obj = serializer.validated_data['otp_obj']
+        user = otp_obj.user
+        new_password = serializer.validated_data['new_password']
+        
+        # Reset password
+        user.set_password(new_password)
         user.save()
         
-        reset_token.is_used = True
-        reset_token.save()
+        # Mark OTP as used
+        otp_obj.mark_as_used()
         
-        return Response({"message": "Password has been reset successfully."}, status=status.HTTP_200_OK)
+        # Invalidate all other unused OTPs for this user
+        PasswordResetOTP.objects.filter(
+            user=user,
+            is_used=False
+        ).update(is_used=True)
+        
+        return Response({
+            "message": "Password has been reset successfully."
+        }, status=status.HTTP_200_OK)
 
 class LogoutView(APIView):
     permission_classes = (permissions.IsAuthenticated,)

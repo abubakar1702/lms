@@ -114,21 +114,28 @@ class UserProfile(models.Model):
         return f"Profile of {self.user.get_full_name()}"
 
 
-class PasswordResetToken(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    token = models.CharField(max_length=255, unique=True)
+class PasswordResetOTP(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='password_reset_otps')
+    otp = models.CharField(max_length=6)
     created_at = models.DateTimeField(auto_now_add=True)
     is_used = models.BooleanField(default=False)
     expires_at = models.DateTimeField()
     
     class Meta:
-        verbose_name = 'Password Reset Token'
-        verbose_name_plural = 'Password Reset Tokens'
+        verbose_name = 'Password Reset OTP'
+        verbose_name_plural = 'Password Reset OTPs'
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', 'otp', 'is_used']),
+        ]
     
     def __str__(self):
-        return f"Reset token for {self.user.email}"
+        return f"OTP for {self.user.email}"
     
     def is_valid(self):
         from django.utils import timezone
         return not self.is_used and self.expires_at > timezone.now()
+    
+    def mark_as_used(self):
+        self.is_used = True
+        self.save()
