@@ -9,7 +9,8 @@ import {
     UserCircle,
     LogOut,
     PlusSquare,
-    Library
+    Library,
+    ClipboardList // Added a new icon for Enrollments
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -34,14 +35,15 @@ const Sidebar = () => {
         ];
 
         const instructorItems = [
-            // Instructors are teachers, they only manage the courses they teach
             { path: '/instructor/courses', label: 'My Courses', icon: BookOpen },
         ];
 
         const adminItems = [
             { path: '/admin/users', label: 'Manage Users', icon: Users },
             { path: '/admin/courses', label: 'All Courses', icon: Library },
-            // Only admins can see the Create Course link
+            // --- NEW ENROLLMENT ITEM FOR ADMIN ONLY ---
+            { path: '/admin/enrollments', label: 'Manage Enrollments', icon: ClipboardList }, 
+            // ------------------------------------------
             { path: '/instructor/create-course', label: 'Create Course', icon: PlusSquare },
             { path: '/admin/reports', label: 'Reports', icon: BarChart3 },
         ];
@@ -58,7 +60,7 @@ const Sidebar = () => {
                 <span>LMS Pro</span>
             </div>
 
-            <nav className="flex-1 flex flex-col gap-1">
+            <nav className="flex-1 flex flex-col gap-1 overflow-y-auto custom-scrollbar">
                 {getNavItems().map((item) => (
                     <NavLink
                         key={item.path}
@@ -86,7 +88,7 @@ const Sidebar = () => {
 
                 <button
                     onClick={handleLogout}
-                    className="nav-link w-full text-left"
+                    className="nav-link w-full text-left hover:bg-red-500/10 hover:text-red-400 transition-colors"
                 >
                     <LogOut size={20} />
                     <span>Logout</span>

@@ -20,7 +20,6 @@ User = get_user_model()
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
-    """Custom JWT view to use email for authentication"""
     serializer_class = CustomTokenObtainPairSerializer
 
 
@@ -51,30 +50,24 @@ class ProfileView(generics.RetrieveUpdateAPIView):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
         
-        # Create a copy of request.data to avoid mutating the original
         data = request.data.copy()
         profile_data = data.pop('profile', None)
         
-        # Update user fields
         serializer = self.get_serializer(instance, data=data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         
-        # Update profile if provided
         if profile_data:
             from .serializers import UserProfileSerializer
-            # Ensure profile exists
             profile_instance, created = UserProfile.objects.get_or_create(user=instance)
             profile_serializer = UserProfileSerializer(profile_instance, data=profile_data, partial=True)
             profile_serializer.is_valid(raise_exception=True)
             profile_serializer.save()
         
-        # Refresh and return updated data
         instance.refresh_from_db()
         return Response(self.get_serializer(instance).data)
 
 def generate_otp():
-    """Generate a 6-digit OTP"""
     return ''.join(random.choices(string.digits, k=6))
 
 
@@ -87,15 +80,13 @@ class PasswordResetRequestView(APIView):
         email = serializer.validated_data['email']
         user = User.objects.get(email=email)
         
-        # Invalidate any existing unused OTPs for this user
         PasswordResetOTP.objects.filter(
             user=user,
             is_used=False
         ).update(is_used=True)
         
-        # Generate new 6-digit OTP
         otp = generate_otp()
-        expires_at = timezone.now() + timedelta(minutes=10)  # OTP expires in 10 minutes
+        expires_at = timezone.now() + timedelta(minutes=10)
         
         PasswordResetOTP.objects.create(
             user=user,
@@ -103,13 +94,9 @@ class PasswordResetRequestView(APIView):
             expires_at=expires_at
         )
         
-        # In production, send OTP via email/SMS
-        # For now, we'll return it in the response (remove this in production!)
-        print(f"OTP for {email}: {otp}")  # Remove in production
-        
         return Response({
             "message": "OTP has been sent to your email.",
-            "otp": otp  # Remove this in production - only for development
+            "otp": otp
         }, status=status.HTTP_200_OK)
 
 
@@ -137,14 +124,11 @@ class PasswordResetConfirmView(APIView):
         user = otp_obj.user
         new_password = serializer.validated_data['new_password']
         
-        # Reset password
         user.set_password(new_password)
         user.save()
         
-        # Mark OTP as used
         otp_obj.mark_as_used()
         
-        # Invalidate all other unused OTPs for this user
         PasswordResetOTP.objects.filter(
             user=user,
             is_used=False

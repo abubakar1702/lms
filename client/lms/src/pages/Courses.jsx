@@ -40,15 +40,12 @@ const Courses = () => {
             console.log('Categories response:', catsRes.data);
             console.log('Enrollments response:', enrollmentsRes.data);
             
-            // Ensure courses is always an array
             const coursesData = coursesRes.data?.results || coursesRes.data || [];
             setCourses(Array.isArray(coursesData) ? coursesData : []);
             
-            // Ensure categories is always an array
             const categoriesData = catsRes.data?.results || catsRes.data || [];
             setCategories(Array.isArray(categoriesData) ? categoriesData : []);
 
-            // Ensure enrollments is always an array
             const enrollments = enrollmentsRes.data?.results || enrollmentsRes.data || [];
             const enrolledIds = new Set(Array.isArray(enrollments) ? enrollments.map(e => e.course) : []);
             setEnrolledCourseIds(enrolledIds);

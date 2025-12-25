@@ -12,13 +12,11 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Replace username field with email field
         if 'username' in self.fields:
             del self.fields['username']
         self.fields['email'] = serializers.EmailField()
 
     def validate(self, attrs):
-        # Get email and password from attrs
         email = attrs.get('email')
         password = attrs.get('password')
         
@@ -28,21 +26,17 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
                 'password': 'This field is required.'
             })
         
-        # Get user by email (since USERNAME_FIELD is 'email')
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
             raise serializers.ValidationError('No active account found with the given credentials.')
         
-        # Check password
         if not user.check_password(password):
             raise serializers.ValidationError('No active account found with the given credentials.')
         
-        # Check if user is active
         if not user.is_active:
             raise serializers.ValidationError('User account is disabled.')
         
-        # Generate tokens using parent method
         refresh = self.get_token(user)
         
         data = {

@@ -24,23 +24,32 @@ const LessonDetail = () => {
     const [isCompleted, setIsCompleted] = useState(false);
 
     useEffect(() => {
-        fetchLessonData();
+        if (slug && lessonId) {
+            fetchLessonData();
+        }
     }, [lessonId, slug]);
 
     const fetchLessonData = async () => {
         try {
             setLoading(true);
             
-            const courseResponse = await api.get(`courses/list/${slug}/`);
+            console.log('Fetching course:', slug);
+            console.log('Fetching lesson:', lessonId);
+            
+            // Fixed: Changed from courses/list/ to courses/courses/
+            const courseResponse = await api.get(`courses/courses/${slug}/`);
+            console.log('Course response:', courseResponse.data);
             setCourse(courseResponse.data);
             setLessons(courseResponse.data.lessons || []);
 
             const lessonResponse = await api.get(`courses/lessons/${lessonId}/`);
+            console.log('Lesson response:', lessonResponse.data);
             setLesson(lessonResponse.data);
 
-            checkLessonCompletion();
+            await checkLessonCompletion();
         } catch (error) {
             console.error('Error fetching lesson data:', error);
+            console.error('Error response:', error.response?.data);
         } finally {
             setLoading(false);
         }
@@ -62,6 +71,7 @@ const LessonDetail = () => {
             setIsCompleted(true);
         } catch (error) {
             console.error('Error completing lesson:', error);
+            alert('Failed to mark lesson as complete. Please try again.');
         } finally {
             setCompleting(false);
         }
@@ -82,8 +92,10 @@ const LessonDetail = () => {
     if (!lesson) {
         return (
             <div className="text-center py-20">
-                <h2 className="text-2xl font-bold text-white">Lesson not found</h2>
-                <Link to={`/courses/${slug}`} className="text-indigo-400 mt-4 inline-block font-bold">
+                <AlertCircle size={64} className="mx-auto text-slate-700 mb-6" />
+                <h2 className="text-2xl font-bold text-white mb-2">Lesson not found</h2>
+                <p className="text-slate-400 mb-6">The lesson you're looking for doesn't exist or you don't have access to it.</p>
+                <Link to={`/courses/${slug}`} className="text-indigo-400 font-bold hover:underline">
                     Back to Course
                 </Link>
             </div>
@@ -97,7 +109,7 @@ const LessonDetail = () => {
                 <Link to="/courses" className="hover:text-indigo-400 transition-colors">Courses</Link>
                 <ChevronRight size={16} />
                 <Link to={`/courses/${slug}`} className="hover:text-indigo-400 transition-colors">
-                    {course?.title}
+                    {course?.title || 'Course'}
                 </Link>
                 <ChevronRight size={16} />
                 <span className="text-white font-bold">{lesson.title}</span>
@@ -109,9 +121,9 @@ const LessonDetail = () => {
                     {/* Video Section */}
                     <div className="glass rounded-[2rem] overflow-hidden border border-white/5">
                         {lesson.video_url ? (
-                            <div className="aspect-video bg-slate-900 flex items-center justify-center">
+                            <div className="aspect-video bg-slate-900">
                                 <video 
-                                    src={lesson.video_url} 
+                                    src={lesson.video_url.startsWith('http') ? lesson.video_url : `http://localhost:8000${lesson.video_url}`}
                                     controls 
                                     className="w-full h-full"
                                     poster={lesson.thumbnail}
@@ -160,7 +172,7 @@ const LessonDetail = () => {
                                 <button
                                     onClick={handleCompleteLesson}
                                     disabled={completing}
-                                    className="bg-emerald-500 hover:bg-emerald-400 text-white px-6 py-3 rounded-xl font-bold transition-all disabled:opacity-50"
+                                    className="bg-emerald-500 hover:bg-emerald-400 text-white px-6 py-3 rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {completing ? 'Marking...' : 'Mark Complete'}
                                 </button>
@@ -237,42 +249,46 @@ const LessonDetail = () => {
                 <div className="space-y-6">
                     <div className="glass p-6 rounded-[2rem] sticky top-24">
                         <h3 className="text-lg font-black text-white mb-6">Course Content</h3>
-                        <div className="space-y-2 max-h-[600px] overflow-y-auto custom-scrollbar">
-                            {lessons.map((l, index) => {
-                                const isCurrent = l.id === parseInt(lessonId);
-                                return (
-                                    <Link
-                                        key={l.id}
-                                        to={`/courses/${slug}/lessons/${l.id}`}
-                                        className={`block p-3 rounded-xl transition-all ${
-                                            isCurrent 
-                                                ? 'bg-indigo-500/20 border border-indigo-500/30' 
-                                                : 'bg-white/5 border border-white/5 hover:bg-white/10'
-                                        }`}
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold ${
+                        <div className="space-y-2 max-h-[600px] overflow-y-auto custom-scrollbar pr-2">
+                            {lessons.length > 0 ? (
+                                lessons.map((l, index) => {
+                                    const isCurrent = l.id === parseInt(lessonId);
+                                    return (
+                                        <Link
+                                            key={l.id}
+                                            to={`/courses/${slug}/lessons/${l.id}`}
+                                            className={`block p-3 rounded-xl transition-all ${
                                                 isCurrent 
-                                                    ? 'bg-indigo-500 text-white' 
-                                                    : 'bg-slate-800 text-slate-500'
-                                            }`}>
-                                                {index + 1}
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p className={`text-sm font-bold truncate ${
-                                                    isCurrent ? 'text-indigo-400' : 'text-white'
+                                                    ? 'bg-indigo-500/20 border border-indigo-500/30' 
+                                                    : 'bg-white/5 border border-white/5 hover:bg-white/10'
+                                            }`}
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold ${
+                                                    isCurrent 
+                                                        ? 'bg-indigo-500 text-white' 
+                                                        : 'bg-slate-800 text-slate-500'
                                                 }`}>
-                                                    {l.title}
-                                                </p>
-                                                <p className="text-xs text-slate-500">{l.duration || '10:00'}</p>
+                                                    {index + 1}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className={`text-sm font-bold truncate ${
+                                                        isCurrent ? 'text-indigo-400' : 'text-white'
+                                                    }`}>
+                                                        {l.title}
+                                                    </p>
+                                                    <p className="text-xs text-slate-500">{l.duration || '10:00'}</p>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </Link>
-                                );
-                            })}
+                                        </Link>
+                                    );
+                                })
+                            ) : (
+                                <p className="text-slate-500 text-sm text-center py-4">No lessons available</p>
+                            )}
                         </div>
 
-                                                <div className="mt-6 pt-6 border-t border-white/5">
+                        <div className="mt-6 pt-6 border-t border-white/5">
                             <Link
                                 to={`/courses/${slug}`}
                                 className="block w-full text-center bg-white/5 hover:bg-white/10 text-white font-bold py-3 rounded-xl transition-all"
@@ -283,7 +299,7 @@ const LessonDetail = () => {
                     </div>
 
                     {/* Completion Notice */}
-                    {isCompleted && (
+                    {isCompleted ? (
                         <div className="glass p-6 rounded-[2rem] border border-emerald-500/20">
                             <div className="flex items-start gap-4">
                                 <CheckCircle size={28} className="text-emerald-400 shrink-0" />
@@ -292,14 +308,12 @@ const LessonDetail = () => {
                                         Lesson Completed
                                     </h4>
                                     <p className="text-sm text-slate-400 leading-relaxed">
-                                        Progress saved. Move on or rewatch if you enjoy pain.
+                                        Great job! Your progress has been saved.
                                     </p>
                                 </div>
                             </div>
                         </div>
-                    )}
-
-                    {!isCompleted && (
+                    ) : (
                         <div className="glass p-6 rounded-[2rem] border border-yellow-500/20">
                             <div className="flex items-start gap-4">
                                 <AlertCircle size={28} className="text-yellow-400 shrink-0" />

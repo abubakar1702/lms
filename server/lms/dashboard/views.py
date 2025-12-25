@@ -13,77 +13,75 @@ class AdminDashboardSummaryView(APIView):
         if request.user.role != 'admin':
             return Response({"error": "Forbidden"}, status=403)
 
-        total_users = User.objects.count()
         role_wise_count = User.objects.values('role').annotate(count=Count('role'))
-        
-        total_courses = Course.objects.count()
-        total_enrollments = Enrollment.objects.count()
-        total_categories = Category.objects.count()
-        
-        # Enrollment status breakdown
         status_wise_enrollments = Enrollment.objects.values('status').annotate(count=Count('status'))
-        
+
+        recent_courses = Course.objects.select_related('instructor', 'category').order_by('-created_at')[:3]
+
         return Response({
-            "users": {
-                "total": total_users,
-                "role_breakdown": {item['role']: item['count'] for item in role_wise_count}
-            },
-            "courses": {
-                "total": total_courses,
-                "total_categories": total_categories
-            },
-            "enrollments": {
-                "total": total_enrollments,
-                "status_breakdown": {item['status']: item['count'] for item in status_wise_enrollments}
-            }
+            "stats": [
+                {"label": "Total Users", "value": User.objects.count(), "type": "users"},
+                {"label": "Active Courses", "value": Course.objects.count(), "type": "courses"},
+                {"label": "Enrollments", "value": Enrollment.objects.count(), "type": "enrollments"},
+                {"label": "Categories", "value": Category.objects.count(), "type": "categories"},
+            ],
+            "recent_items": [{
+                "id": c.id,
+                "title": c.title,
+                "instructor": c.instructor.get_full_name() or c.instructor.username,
+                "progress": 100,
+                "category": c.category.name if c.category else "Uncategorized",
+                "color": "from-blue-500 to-indigo-600"
+            } for c in recent_courses]
         })
 
 class InstructorDashboardSummaryView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        if request.user.role != 'instructor' and request.user.role != 'admin':
+        if request.user.role not in ['instructor', 'admin']:
             return Response({"error": "Forbidden"}, status=403)
 
-        # Handle Admin requesting instructor view (optional, but good for testing)
         instructor = request.user
-        
         my_courses = Course.objects.filter(instructor=instructor)
-        total_my_courses = my_courses.count()
-        
         my_enrollments = Enrollment.objects.filter(course__instructor=instructor)
-        total_students = my_enrollments.values('student').distinct().count()
-        total_enrollments = my_enrollments.count()
-        
-        # Breakdown of my courses by category
-        category_breakdown = my_courses.values('category__name').annotate(count=Count('id'))
         
         return Response({
-            "courses": {
-                "total": total_my_courses,
-                "category_breakdown": {item['category__name'] or "Uncategorized": item['count'] for item in category_breakdown}
-            },
-            "students": {
-                "total_unique": total_students,
-                "total_enrollments": total_enrollments
-            }
+            "stats": [
+                {"label": "My Courses", "value": my_courses.count(), "type": "courses"},
+                {"label": "Total Students", "value": my_enrollments.values('student').distinct().count(), "type": "users"},
+                {"label": "Enrollments", "value": my_enrollments.count(), "type": "enrollments"},
+                {"label": "Avg. Progress", "value": f"{round(my_enrollments.aggregate(Sum('progress'))['progress__sum'] or 0 / (my_enrollments.count() or 1))}%", "type": "trend"},
+            ],
+            "recent_items": [{
+                "id": c.id,
+                "title": c.title,
+                "instructor": "You",
+                "progress": 0, # Placeholder or calculation of course completion
+                "category": c.category.name if c.category else "Uncategorized",
+                "color": "from-purple-500 to-pink-600"
+            } for c in my_courses[:3]]
         })
 
 class StudentDashboardSummaryView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        if request.user.role != 'student' and request.user.role != 'admin':
-            return Response({"error": "Forbidden"}, status=403)
-
-        my_enrollments = Enrollment.objects.filter(student=request.user)
-        total_enrolled = my_enrollments.count()
-        completed_courses = my_enrollments.filter(status='completed').count()
-        active_courses = my_enrollments.filter(status='active').count()
+        my_enrollments = Enrollment.objects.filter(student=request.user).select_related('course', 'course__instructor', 'course__category')
         
         return Response({
-            "enrolled_courses": total_enrolled,
-            "active_courses": active_courses,
-            "completed_courses": completed_courses,
-            "average_progress": my_enrollments.aggregate(avg_progress=Sum('progress'))['avg_progress'] or 0
+            "stats": [
+                {"label": "Enrolled", "value": my_enrollments.count(), "type": "courses"},
+                {"label": "Active", "value": my_enrollments.filter(status='active').count(), "type": "enrollments"},
+                {"label": "Completed", "value": my_enrollments.filter(status='completed').count(), "type": "completed"},
+                {"label": "Avg. Progress", "value": f"{round(my_enrollments.aggregate(avg=Sum('progress'))['avg'] or 0)}%", "type": "trend"},
+            ],
+            "recent_items": [{
+                "id": en.id,
+                "title": en.course.title,
+                "instructor": en.course.instructor.get_full_name() or en.course.instructor.username,
+                "progress": en.progress,
+                "category": en.course.category.name if en.course.category else "General",
+                "color": "from-orange-500 to-rose-600"
+            } for en in my_enrollments[:3]]
         })
