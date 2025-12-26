@@ -38,6 +38,9 @@ npm run dev
 
 API base: `http://localhost:8000/api`
 
+
+![Login Preview](preview/register.png)
+
 ## Important files
 
 - Frontend entry: [client/lms/src/main.jsx](client/lms/src/main.jsx)
