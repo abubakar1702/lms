@@ -22,7 +22,7 @@ class Enrollment(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
     enrolled_at = models.DateTimeField(auto_now_add=True)
     completed_at = models.DateTimeField(blank=True, null=True)
-    progress = models.DecimalField(max_digits=5, decimal_places=2, default=0.00) # Percentage
+    progress = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
 
     class Meta:
         unique_together = ('student', 'course')

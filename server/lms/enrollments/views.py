@@ -40,7 +40,6 @@ class EnrollmentViewSet(viewsets.ModelViewSet):
             progress.completed_at = timezone.now()
             progress.save()
             
-            # Update overall enrollment progress
             total_lessons = enrollment.course.lessons.count()
             completed_lessons = enrollment.lesson_progress.filter(is_completed=True).count()
             if total_lessons > 0:

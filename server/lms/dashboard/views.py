@@ -57,7 +57,7 @@ class InstructorDashboardSummaryView(APIView):
                 "id": c.id,
                 "title": c.title,
                 "instructor": "You",
-                "progress": 0, # Placeholder or calculation of course completion
+                "progress": 0,
                 "category": c.category.name if c.category else "Uncategorized",
                 "color": "from-purple-500 to-pink-600"
             } for c in my_courses[:3]]
