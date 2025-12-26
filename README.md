@@ -39,7 +39,12 @@ npm run dev
 API base: `http://localhost:8000/api`
 
 
-![Login Preview](preview/register.png)
+![Register Preview](preview/register.png)
+![Login Preview](preview/login.png)
+![Dashboard Preview](preview/dashboard.png)
+![Courses Preview](preview/courses.png)
+![Course Detail Preview](preview/course-detail.png)
+![Learning Preview](preview/learning.png)
 
 ## Important files
 
