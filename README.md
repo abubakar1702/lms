@@ -54,5 +54,3 @@ API base: `http://localhost:8000/api`
 Create a branch, make changes, add tests, run migrations for model changes, and open a PR.
 
 ---
-
-If you'd like, I can clean up the `client/lms/README.md` (it has an extra template section) or fully replace it with this top-level README. Want me to tidy the frontend README too?
