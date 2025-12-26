@@ -100,7 +100,6 @@ const Profile = () => {
         e.preventDefault();
         setSaving(true);
         try {
-            // Helper function to convert empty strings to null
             const cleanValue = (value) => {
                 if (value === '' || value === null || value === undefined) {
                     return null;
@@ -108,7 +107,6 @@ const Profile = () => {
                 return value;
             };
 
-            // Helper function to convert empty strings to null for integers
             const cleanIntValue = (value) => {
                 if (value === '' || value === null || value === undefined) {
                     return null;
@@ -158,7 +156,6 @@ const Profile = () => {
                 } else if (errorData.message) {
                     errorMessage = errorData.message;
                 } else {
-                    // Get first error message from any field
                     const firstError = Object.values(errorData).find(err => err);
                     if (firstError) {
                         errorMessage = Array.isArray(firstError) ? firstError[0] : firstError;

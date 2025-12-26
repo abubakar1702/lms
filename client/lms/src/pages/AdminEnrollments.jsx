@@ -34,7 +34,6 @@ const AdminEnrollments = () => {
             setEnrollments(Array.isArray(enrollmentsData) ? enrollmentsData : []);
             setCourses(Array.isArray(coursesData) ? coursesData : []);
 
-            // Filter only students
             const allUsers = Array.isArray(usersData) ? usersData : [];
             setStudents(allUsers.filter(user => user.role === 'student'));
         } catch (error) {

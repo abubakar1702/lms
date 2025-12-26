@@ -16,7 +16,6 @@ const StudentDashboard = ({ user, dashboardData }) => {
         streak: { icon: TrendingUp, color: 'text-orange-400 bg-orange-400/10' }
     };
 
-    // ... rest of the component remains the same
     return (
         <div className="max-w-7xl mx-auto animate-in fade-in duration-700">
             <header className="mb-10">
@@ -83,9 +82,6 @@ const StudentDashboard = ({ user, dashboardData }) => {
                                                 style={{ width: `${course.progress || 0}%` }}
                                             />
                                         </div>
-                                        <p className="text-xs text-slate-400 mt-2 text-right">
-                                            {course.last_accessed || 'Not started yet'}
-                                        </p>
                                     </div>
                                 </div>
                             ))

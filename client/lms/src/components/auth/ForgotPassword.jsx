@@ -4,7 +4,7 @@ import { Mail, Lock, Shield } from 'lucide-react';
 import api from '../../api/axios';
 
 const ForgotPassword = () => {
-    const [step, setStep] = useState(1); // 1: email, 2: OTP, 3: new password
+    const [step, setStep] = useState(1);
     const [email, setEmail] = useState('');
     const [otp, setOtp] = useState('');
     const [newPassword, setNewPassword] = useState('');
@@ -23,7 +23,6 @@ const ForgotPassword = () => {
         try {
             const response = await api.post('users/password-reset/request/', { email });
             setSuccess(response.data.message);
-            // In development, show OTP in console
             if (response.data.otp) {
                 console.log('OTP (dev only):', response.data.otp);
                 alert(`OTP (dev only): ${response.data.otp}`);

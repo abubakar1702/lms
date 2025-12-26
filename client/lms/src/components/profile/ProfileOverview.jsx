@@ -15,7 +15,7 @@ const ProfileOverview = ({ user }) => {
                     </p>
                 </div>
 
-                {/* Contact Info (moved here instead of Department / Specialization) */}
+                {/* Contact Info */}
                 <div className="glass p-6 rounded-[2rem] space-y-4 mt-4">
                     <h4 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-2">
                         Contact Info
@@ -71,7 +71,7 @@ const ProfileOverview = ({ user }) => {
                 </div>
             </div>
 
-            {/* Sidebar Info (can be extended later if needed) */}
+            {/* Sidebar Info */}
             <div className="space-y-6">
                 <div className="glass p-8 rounded-[2rem] flex flex-col items-center text-center space-y-4">
                     <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20">

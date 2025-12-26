@@ -10,7 +10,7 @@ import {
     LogOut,
     PlusSquare,
     Library,
-    ClipboardList // Added a new icon for Enrollments
+    ClipboardList
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 

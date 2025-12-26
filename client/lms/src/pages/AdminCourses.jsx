@@ -18,12 +18,11 @@ const AdminCourses = () => {
             setLoading(true);
             const response = await api.get('courses/');
             const data = response.data.results || response.data;
-            // Ensure data is an array
             setCourses(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error('Error fetching courses:', error);
             toast.error('Failed to load courses');
-            setCourses([]); // Set to empty array on error
+            setCourses([]);
         } finally {
             setLoading(false);
         }

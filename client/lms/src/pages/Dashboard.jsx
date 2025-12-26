@@ -31,7 +31,6 @@ const Dashboard = () => {
         fetchDashboardData();
     }, [user]);
 
-    // 1. Loading State
     if (loading) {
         return (
             <div className="flex h-[60vh] flex-col items-center justify-center gap-4">
@@ -41,7 +40,6 @@ const Dashboard = () => {
         );
     }
 
-    // 2. Error State
     if (error) {
         return (
             <div className="flex h-[60vh] flex-col items-center justify-center text-center px-4">
@@ -60,7 +58,6 @@ const Dashboard = () => {
         );
     }
 
-    // 3. Render appropriate dashboard based on user role
     switch (user?.role) {
         case 'admin':
             return <AdminDashboard user={user} dashboardData={dashboardData} />;

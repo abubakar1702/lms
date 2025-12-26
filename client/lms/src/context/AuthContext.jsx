@@ -8,7 +8,6 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Check if user is already logged in
         const token = localStorage.getItem('access_token');
         if (token) {
             fetchUserProfile();
@@ -39,7 +38,6 @@ export const AuthProvider = ({ children }) => {
             return { success: true };
         } catch (error) {
             console.error('Login error:', error.response?.data);
-            // Handle different error formats
             const errorData = error.response?.data;
             let errorMessage = 'Login failed';
             
@@ -65,8 +63,6 @@ export const AuthProvider = ({ children }) => {
     };
 
     const register = async (userData) => {
-        // Send fields expected by the backend RegisterSerializer,
-        // including the chosen role (student/instructor).
         const payload = {
             first_name: userData.first_name,
             last_name: userData.last_name,

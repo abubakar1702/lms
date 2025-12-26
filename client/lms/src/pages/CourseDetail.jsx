@@ -17,7 +17,6 @@ const CourseDetail = () => {
     useEffect(() => {
         fetchCourseDetail();
         checkEnrollmentStatus();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [slug]);
 
     const fetchCourseDetail = async () => {
@@ -37,7 +36,6 @@ const CourseDetail = () => {
         try {
             const res = await api.get('enrollments/');
             const enrollments = res.data.results || res.data;
-            // Check if any enrollment matches current course slug
             setIsEnrolled(enrollments.some(e => e.course_details?.slug === slug));
         } catch (err) {
             console.error("Error checking enrollment:", err);

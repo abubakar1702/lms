@@ -36,7 +36,6 @@ const LessonDetail = () => {
             console.log('Fetching course:', slug);
             console.log('Fetching lesson:', lessonId);
             
-            // Fixed: Changed from courses/list/ to courses/courses/
             const courseResponse = await api.get(`courses/courses/${slug}/`);
             console.log('Course response:', courseResponse.data);
             setCourse(courseResponse.data);
