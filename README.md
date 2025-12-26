@@ -51,11 +51,11 @@ API base: `http://localhost:8000/api`
 
 ### Dashboard
 ![Dashboard Preview](preview/dashboard.png)
-*Admin dashboard showing statistics and reports*
+*Dashboard for quick overview*
 
 ### Course Listing
 ![Courses Preview](preview/courses.png)
-*Browse and search available courses*
+*Available courses*
 
 ### Course Details
 ![Course Detail Preview](preview/course-detail.png)
@@ -63,7 +63,7 @@ API base: `http://localhost:8000/api`
 
 ### Learning Interface
 ![Learning Preview](preview/learning.png)
-*Interactive learning environment for enrolled students*
+*Learning courses*
 
 ## Important files
 
