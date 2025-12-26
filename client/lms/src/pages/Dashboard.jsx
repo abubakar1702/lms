@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import AdminDashboard from '../components/dashboard/AdminDashboard';
@@ -17,7 +17,7 @@ const Dashboard = () => {
         try {
             setLoading(true);
             setError(null);
-            const response = await axios.get(`/api/dashboard/${user.role}/`);
+            const response = await api.get(`dashboard/${user.role}/`);
             setDashboardData(response.data);
         } catch (err) {
             setError(err.response?.data?.error || "Failed to connect to the server.");
@@ -49,7 +49,7 @@ const Dashboard = () => {
                     <AlertCircle className="text-red-500 mx-auto mb-4" size={48} />
                     <h2 className="text-white text-xl font-bold mb-2">Data Unavailable</h2>
                     <p className="text-slate-400 mb-6 max-w-md">{error}</p>
-                    <button 
+                    <button
                         onClick={fetchDashboardData}
                         className="flex items-center gap-2 mx-auto bg-white text-slate-900 px-6 py-2 rounded-xl font-bold hover:bg-slate-200 transition-all"
                     >

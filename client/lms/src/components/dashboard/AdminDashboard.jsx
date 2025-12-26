@@ -1,4 +1,19 @@
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+    Users,
+    BookOpen,
+    GraduationCap,
+    TrendingUp,
+    ChevronRight,
+    Calendar,
+    Plus,
+    UserPlus
+} from 'lucide-react';
+
 const AdminDashboard = ({ user, dashboardData }) => {
+    const navigate = useNavigate();
+
     const uiConfig = {
         users: { icon: Users, color: 'text-purple-400 bg-purple-400/10' },
         courses: { icon: BookOpen, color: 'text-indigo-400 bg-indigo-400/10' },
@@ -9,10 +24,30 @@ const AdminDashboard = ({ user, dashboardData }) => {
     return (
         <div className="max-w-7xl mx-auto animate-in fade-in duration-700">
             <header className="mb-10">
-                <h1 className="text-3xl font-bold text-white mb-2">
-                    Welcome back, {user?.first_name || user?.username}! 👋
-                </h1>
-                <p className="text-slate-400">Platform-wide analytics and management.</p>
+                <div className="flex justify-between items-start mb-6">
+                    <div>
+                        <h1 className="text-3xl font-bold text-white mb-2">
+                            Welcome back, {user?.first_name || user?.username}! 👋
+                        </h1>
+                        <p className="text-slate-400">Platform-wide analytics and management.</p>
+                    </div>
+                    <div className="flex gap-3">
+                        <button
+                            onClick={() => navigate('/admin/courses')}
+                            className="flex items-center gap-2 bg-indigo-500 text-white px-4 py-2 rounded-xl font-bold hover:bg-indigo-600 transition-all shadow-lg hover:shadow-indigo-500/50"
+                        >
+                            <BookOpen size={18} />
+                            Manage Courses
+                        </button>
+                        <button
+                            onClick={() => navigate('/admin/enrollments')}
+                            className="flex items-center gap-2 bg-purple-500 text-white px-4 py-2 rounded-xl font-bold hover:bg-purple-600 transition-all shadow-lg hover:shadow-purple-500/50"
+                        >
+                            <UserPlus size={18} />
+                            Enroll Students
+                        </button>
+                    </div>
+                </div>
             </header>
 
             {/* Stats Grid */}
@@ -50,8 +85,8 @@ const AdminDashboard = ({ user, dashboardData }) => {
                     <div className="space-y-6">
                         {dashboardData?.recent_items?.length > 0 ? (
                             dashboardData.recent_items.map((item) => (
-                                <div key={item.id} className="p-5 bg-white/5 border border-white/5 rounded-2xl flex flex-col sm:flex-row items-center gap-6 hover:bg-white/10 transition-all border-l-4 border-l-indigo-500">
-                                    <div className={`w-20 h-16 bg-gradient-to-br ${item.color || 'from-indigo-500 to-purple-600'} rounded-xl shadow-lg shrink-0`} />
+                                <div key={item.id} className="p-5 bg-white/5 border border-white/5 rounded-2xl flex flex-col sm:flex-row items-center gap-6 hover:bg-white/10 transition-all border-l-4 border-l-indigo-500 cursor-pointer group">
+                                    <div className={`w-20 h-16 bg-gradient-to-br ${item.color || 'from-indigo-500 to-purple-600'} rounded-xl shadow-lg shrink-0 group-hover:scale-105 transition-transform`} />
                                     <div className="flex-1 min-w-0 w-full">
                                         <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">
                                             {item.category}
@@ -65,9 +100,9 @@ const AdminDashboard = ({ user, dashboardData }) => {
                                             <span className="text-white font-bold">{item.users || 0}</span>
                                         </div>
                                         <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                                            <div 
-                                                className="h-full bg-indigo-500 rounded-full transition-all duration-1000 ease-out" 
-                                                style={{ width: `${item.engagement || 0}%` }} 
+                                            <div
+                                                className="h-full bg-indigo-500 rounded-full transition-all duration-1000 ease-out"
+                                                style={{ width: `${item.engagement || 0}%` }}
                                             />
                                         </div>
                                     </div>
@@ -75,7 +110,9 @@ const AdminDashboard = ({ user, dashboardData }) => {
                             ))
                         ) : (
                             <div className="text-center py-12">
-                                <p className="text-slate-500 italic">No recent activity to display.</p>
+                                <BookOpen className="mx-auto mb-4 text-slate-600" size={48} />
+                                <p className="text-slate-500 italic">No recent courses to display.</p>
+                                <p className="text-slate-600 text-sm mt-2">Courses will appear here once created.</p>
                             </div>
                         )}
                     </div>
@@ -88,20 +125,27 @@ const AdminDashboard = ({ user, dashboardData }) => {
                             <Calendar size={20} />
                             <h2 className="text-lg font-bold text-white">System Alerts</h2>
                         </div>
-                        
+
                         <div className="space-y-4 mb-6">
-                            {dashboardData?.alerts?.map((alert, index) => (
-                                <div key={index} className="flex gap-4 p-4 bg-white/5 rounded-2xl">
-                                    <div className={`${alert.type === 'warning' ? 'bg-yellow-500' : 'bg-indigo-500'} text-white p-2 rounded-xl text-center min-w-[50px]`}>
-                                        <p className="text-[10px] font-black uppercase opacity-80">{alert.date.split(' ')[0]}</p>
-                                        <p className="text-lg font-black leading-none">{alert.date.split(' ')[1]}</p>
+                            {dashboardData?.alerts && dashboardData.alerts.length > 0 ? (
+                                dashboardData.alerts.map((alert, index) => (
+                                    <div key={index} className="flex gap-4 p-4 bg-white/5 rounded-2xl hover:bg-white/10 transition-all cursor-pointer">
+                                        <div className={`${alert.type === 'warning' ? 'bg-yellow-500' : 'bg-indigo-500'} text-white p-2 rounded-xl text-center min-w-[50px]`}>
+                                            <p className="text-[10px] font-black uppercase opacity-80">{alert.date.split(' ')[0]}</p>
+                                            <p className="text-lg font-black leading-none">{alert.date.split(' ')[1]}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-bold text-white">{alert.title}</p>
+                                            <p className="text-xs text-slate-400 mt-1">{alert.description}</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p className="text-sm font-bold text-white">{alert.title}</p>
-                                        <p className="text-xs text-slate-400 mt-1">{alert.description}</p>
-                                    </div>
+                                ))
+                            ) : (
+                                <div className="text-center py-8">
+                                    <Calendar className="mx-auto mb-3 text-slate-600" size={32} />
+                                    <p className="text-slate-500 text-sm">No alerts at this time</p>
                                 </div>
-                            ))}
+                            )}
                         </div>
 
                         <button className="w-full py-3 border border-indigo-500/20 text-indigo-400 rounded-2xl text-sm font-bold hover:bg-indigo-500 hover:text-white transition-all">

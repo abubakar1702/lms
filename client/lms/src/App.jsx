@@ -12,6 +12,9 @@ import CourseDetail from './pages/CourseDetail';
 import LessonDetail from './pages/LessonDetail';
 import Profile from './pages/Profile';
 import MyLearning from './pages/MyLearning';
+import AdminUsers from './pages/AdminUsers';
+import AdminCourses from './pages/AdminCourses';
+import AdminEnrollments from './pages/AdminEnrollments';
 import { Toaster } from 'react-hot-toast';
 import './App.css';
 
@@ -44,7 +47,9 @@ function App() {
             <Route path="my-enrollments" element={<MyLearning />} />
             <Route path="instructor/courses" element={<div>Instructor Courses (Coming Soon)</div>} />
             <Route path="instructor/create-course" element={<div>Create Course (Coming Soon)</div>} />
-            <Route path="admin/users" element={<div>Manage Users (Coming Soon)</div>} />
+            <Route path="admin/users" element={<AdminUsers />} />
+            <Route path="admin/courses" element={<AdminCourses />} />
+            <Route path="admin/enrollments" element={<AdminEnrollments />} />
             <Route path="admin/reports" element={<div>Reports (Coming Soon)</div>} />
           </Route>
 

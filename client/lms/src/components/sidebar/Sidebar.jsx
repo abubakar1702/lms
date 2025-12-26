@@ -36,15 +36,13 @@ const Sidebar = () => {
 
         const instructorItems = [
             { path: '/instructor/courses', label: 'My Courses', icon: BookOpen },
+            { path: '/instructor/create-course', label: 'Create Course', icon: PlusSquare },
         ];
 
         const adminItems = [
             { path: '/admin/users', label: 'Manage Users', icon: Users },
-            { path: '/admin/courses', label: 'All Courses', icon: Library },
-            // --- NEW ENROLLMENT ITEM FOR ADMIN ONLY ---
-            { path: '/admin/enrollments', label: 'Manage Enrollments', icon: ClipboardList }, 
-            // ------------------------------------------
-            { path: '/instructor/create-course', label: 'Create Course', icon: PlusSquare },
+            { path: '/admin/courses', label: 'Manage Courses', icon: Library },
+            { path: '/admin/enrollments', label: 'Enrollments', icon: ClipboardList },
             { path: '/admin/reports', label: 'Reports', icon: BarChart3 },
         ];
 
@@ -65,6 +63,7 @@ const Sidebar = () => {
                     <NavLink
                         key={item.path}
                         to={item.path}
+                        end={item.path === '/dashboard'}
                         className={({ isActive }) => `nav-link ${isActive ? 'nav-link-active' : ''}`}
                     >
                         <item.icon size={20} />

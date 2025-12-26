@@ -1,11 +1,11 @@
 import React from 'react';
-import { 
-    BookOpen, 
-    GraduationCap, 
-    Clock, 
-    TrendingUp, 
-    ChevronRight, 
-    Calendar 
+import {
+    BookOpen,
+    GraduationCap,
+    Clock,
+    TrendingUp,
+    ChevronRight,
+    Calendar
 } from 'lucide-react';
 
 const StudentDashboard = ({ user, dashboardData }) => {
@@ -61,10 +61,10 @@ const StudentDashboard = ({ user, dashboardData }) => {
                     </div>
 
                     <div className="space-y-6">
-                        {dashboardData?.courses?.length > 0 ? (
-                            dashboardData.courses.map((course) => (
-                                <div key={course.id} className="p-5 bg-white/5 border border-white/5 rounded-2xl flex flex-col sm:flex-row items-center gap-6 hover:bg-white/10 transition-all border-l-4 border-l-indigo-500">
-                                    <div className={`w-20 h-16 bg-gradient-to-br ${course.color || 'from-indigo-500 to-purple-600'} rounded-xl shadow-lg shrink-0`} />
+                        {dashboardData?.recent_items?.length > 0 ? (
+                            dashboardData.recent_items.map((course) => (
+                                <div key={course.id} className="p-5 bg-white/5 border border-white/5 rounded-2xl flex flex-col sm:flex-row items-center gap-6 hover:bg-white/10 transition-all border-l-4 border-l-indigo-500 cursor-pointer group">
+                                    <div className={`w-20 h-16 bg-gradient-to-br ${course.color || 'from-indigo-500 to-purple-600'} rounded-xl shadow-lg shrink-0 group-hover:scale-105 transition-transform`} />
                                     <div className="flex-1 min-w-0 w-full">
                                         <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">
                                             {course.category}
@@ -75,12 +75,12 @@ const StudentDashboard = ({ user, dashboardData }) => {
                                     <div className="w-full sm:w-48">
                                         <div className="flex justify-between text-xs mb-2">
                                             <span className="text-slate-400 font-medium">Progress</span>
-                                            <span className="text-white font-bold">{course.progress}%</span>
+                                            <span className="text-white font-bold">{course.progress || 0}%</span>
                                         </div>
                                         <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                                            <div 
-                                                className="h-full bg-indigo-500 rounded-full transition-all duration-1000 ease-out" 
-                                                style={{ width: `${course.progress}%` }} 
+                                            <div
+                                                className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-1000 ease-out"
+                                                style={{ width: `${course.progress || 0}%` }}
                                             />
                                         </div>
                                         <p className="text-xs text-slate-400 mt-2 text-right">
@@ -91,7 +91,9 @@ const StudentDashboard = ({ user, dashboardData }) => {
                             ))
                         ) : (
                             <div className="text-center py-12">
+                                <BookOpen className="mx-auto mb-4 text-slate-600" size={48} />
                                 <p className="text-slate-500 italic">No courses enrolled yet.</p>
+                                <p className="text-slate-600 text-sm mt-2">Start your learning journey today!</p>
                                 <button className="mt-4 bg-indigo-500 text-white px-6 py-2 rounded-xl font-bold hover:bg-indigo-600 transition-all">
                                     Explore Courses
                                 </button>
@@ -107,24 +109,31 @@ const StudentDashboard = ({ user, dashboardData }) => {
                             <Calendar size={20} />
                             <h2 className="text-lg font-bold text-white">Upcoming Deadlines</h2>
                         </div>
-                        
+
                         <div className="space-y-4 mb-6">
-                            {dashboardData?.deadlines?.map((deadline, index) => (
-                                <div key={index} className="flex gap-4 p-4 bg-white/5 rounded-2xl">
-                                    <div className={`${deadline.priority === 'high' ? 'bg-red-500' : 'bg-indigo-500'} text-white p-2 rounded-xl text-center min-w-[50px]`}>
-                                        <p className="text-[10px] font-black uppercase opacity-80">
-                                            {new Date(deadline.date).toLocaleDateString('en-US', { month: 'short' })}
-                                        </p>
-                                        <p className="text-lg font-black leading-none">
-                                            {new Date(deadline.date).getDate()}
-                                        </p>
+                            {dashboardData?.deadlines && dashboardData.deadlines.length > 0 ? (
+                                dashboardData.deadlines.map((deadline, index) => (
+                                    <div key={index} className="flex gap-4 p-4 bg-white/5 rounded-2xl hover:bg-white/10 transition-all cursor-pointer">
+                                        <div className={`${deadline.priority === 'high' ? 'bg-red-500' : 'bg-indigo-500'} text-white p-2 rounded-xl text-center min-w-[50px]`}>
+                                            <p className="text-[10px] font-black uppercase opacity-80">
+                                                {new Date(deadline.date).toLocaleDateString('en-US', { month: 'short' })}
+                                            </p>
+                                            <p className="text-lg font-black leading-none">
+                                                {new Date(deadline.date).getDate()}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-bold text-white">{deadline.title}</p>
+                                            <p className="text-xs text-slate-400 mt-1">{deadline.course}</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p className="text-sm font-bold text-white">{deadline.title}</p>
-                                        <p className="text-xs text-slate-400 mt-1">{deadline.course}</p>
-                                    </div>
+                                ))
+                            ) : (
+                                <div className="text-center py-8">
+                                    <Calendar className="mx-auto mb-3 text-slate-600" size={32} />
+                                    <p className="text-slate-500 text-sm">No upcoming deadlines</p>
                                 </div>
-                            ))}
+                            )}
                         </div>
 
                         <button className="w-full py-3 border border-indigo-500/20 text-indigo-400 rounded-2xl text-sm font-bold hover:bg-indigo-500 hover:text-white transition-all">
@@ -140,11 +149,11 @@ const StudentDashboard = ({ user, dashboardData }) => {
                             {dashboardData?.goals?.completed || 0} of {dashboardData?.goals?.total || 5} goals completed this month
                         </p>
                         <div className="h-2 bg-white/20 rounded-full overflow-hidden mb-4">
-                            <div 
-                                className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-1000 ease-out" 
-                                style={{ 
-                                    width: `${((dashboardData?.goals?.completed || 0) / (dashboardData?.goals?.total || 5)) * 100}%` 
-                                }} 
+                            <div
+                                className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-1000 ease-out"
+                                style={{
+                                    width: `${((dashboardData?.goals?.completed || 0) / (dashboardData?.goals?.total || 5)) * 100}%`
+                                }}
                             />
                         </div>
                         <button className="bg-white text-indigo-600 px-4 py-2 rounded-xl text-xs font-bold hover:bg-slate-100 transition-all relative z-10">
