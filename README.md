@@ -42,27 +42,27 @@ API base: `http://localhost:8000/api`
 ## 📸 Screenshots
 
 ### Register Page
-![Register Preview](__preview/register.png)
+![Register Preview](preview/register.png)
 *Create a new account with role selection*
 
 ### Login Page
-![Login Preview](__preview/login.png)
+![Login Preview](preview/login.png)
 *User authentication with email and password*
 
 ### Dashboard
-![Dashboard Preview](__preview/dashboard.png)
+![Dashboard Preview](preview/dashboard.png)
 *Admin dashboard showing statistics and reports*
 
 ### Course Listing
-![Courses Preview](__preview/courses.png)
+![Courses Preview](preview/courses.png)
 *Browse and search available courses*
 
 ### Course Details
-![Course Detail Preview](__preview/course-detail.png)
+![Course Detail Preview](preview/course-detail.png)
 *Detailed view of a course with enrollment option*
 
 ### Learning Interface
-![Learning Preview](__preview/learning.png)
+![Learning Preview](preview/learning.png)
 *Interactive learning environment for enrolled students*
 
 ## Important files
